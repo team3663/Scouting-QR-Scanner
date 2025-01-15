@@ -7,7 +7,7 @@ public class Main extends JFrame {
         setSize(600,900);
         setLocationRelativeTo(null);
         setVisible(true);
-    };
+    }
 
     public static void main(String[] args) {
         new Main();
