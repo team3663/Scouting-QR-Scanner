@@ -1,8 +1,4 @@
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
@@ -15,7 +11,6 @@ public class Main extends JFrame {
     private JLabel lbl_Status;
     private JTextArea txt_Data;
     private JTextField txt_FilePath;
-    private JLabel lbl_FilePath;
     private JCheckBox check_Auto;
 
     // Maximum time we wait (after text starts to flow in) after text stops to flow in before we trigger an auto-save
@@ -26,7 +21,7 @@ public class Main extends JFrame {
     private long current_time = 0;
     // Whether we run in auto mode or not
     private boolean auto_mode = false;
-    private String default_status = "Status: ";
+    private final String default_status = "Status: ";
 
     public Main () {
         // Set FORM values
@@ -41,9 +36,7 @@ public class Main extends JFrame {
         Timer timer;
 
         // Set up a button to FORCE an auto-save
-        btn_Save.addActionListener(e -> {
-            saveDataToFile();
-        });
+        btn_Save.addActionListener(e -> saveDataToFile());
 
         // Listen for text entered into the TextArea and record the time the key was last pressed
         txt_Data.addKeyListener(new KeyAdapter() {
@@ -55,12 +48,7 @@ public class Main extends JFrame {
             }
         });
 
-        check_Auto.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                auto_mode = check_Auto.isSelected();
-            }
-        });
+        check_Auto.addActionListener(e -> auto_mode = check_Auto.isSelected());
 
         // Set up the timer to check the conditions and take action
         timer = new Timer();
