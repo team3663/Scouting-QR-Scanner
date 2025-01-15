@@ -1,9 +1,11 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,6 +16,7 @@ public class Main extends JFrame {
     private JTextArea txt_Data;
     private JTextField txt_FilePath;
     private JLabel lbl_FilePath;
+    private JCheckBox check_Auto;
 
     // Maximum time we wait (after text starts to flow in) after text stops to flow in before we trigger an auto-save
     private final long MAX_DATA_ENTRY_PAUSE = 1_000;
@@ -21,6 +24,9 @@ public class Main extends JFrame {
     private long lastKeyPressTime = 0;
     // Current system time
     private long current_time = 0;
+    // Whether we run in auto mode or not
+    private boolean auto_mode = false;
+    private String default_status = "Status: ";
 
     public Main () {
         // Set FORM values
@@ -45,6 +51,14 @@ public class Main extends JFrame {
             public void keyTyped(KeyEvent e) {
                 super.keyTyped(e);
                 lastKeyPressTime = System.currentTimeMillis();
+                lbl_Status.setText(default_status);
+            }
+        });
+
+        check_Auto.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                auto_mode = check_Auto.isSelected();
             }
         });
 
@@ -53,28 +67,26 @@ public class Main extends JFrame {
         TimerTask timer_task = new TimerTask() {
             @Override
             public void run() {
-                // If no text has been entered, do nothing.
-                if (lastKeyPressTime == 0)
+                // If no text has been entered OR we're not in auto mode, do nothing.
+                if ((lastKeyPressTime == 0) || !auto_mode)
                     return;
 
                 // Check how long it's been since text was entered into the TextArea
                 current_time = System.currentTimeMillis();
                 long diff_time = current_time - lastKeyPressTime;
-                String message = String.valueOf(diff_time); // TODO: REMOVE
 
                 // If we've waited beyond the threshold, auto-save the text to a file
                 if (diff_time > MAX_DATA_ENTRY_PAUSE) {
-                    message += " **";  // TODO: REMOVE
                     // Reset the time the last key was pressed since we're now waiting for another QR code
                     lastKeyPressTime = 0;
-                    // call the function to save off the file here
+                    saveDataToFile();
                 }
-
-                lbl_Status.setText(message); // TODO: REMOVE
             }
         };
 
         timer.schedule(timer_task, 0, 500);
+
+
     }
 
     public static void main(String[] args) {
@@ -105,6 +117,7 @@ public class Main extends JFrame {
         } finally {
             // If we were successful, clear out the text box for the next incoming file.
             txt_Data.setText("");
+            lbl_Status.setText(default_status + " File " + filepath + " saved!");
         }
     }
 }
