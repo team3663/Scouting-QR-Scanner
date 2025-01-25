@@ -19,7 +19,7 @@
       </component>
       <component id="d260a" class="javax.swing.JLabel" binding="lbl_Status">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="2" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Status: "/>
@@ -50,6 +50,15 @@
         </constraints>
         <properties>
           <text value="File Path:"/>
+        </properties>
+      </component>
+      <component id="3c5a7" class="javax.swing.JCheckBox" binding="check_AutoMode">
+        <constraints>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Auto Mode"/>
         </properties>
       </component>
     </children>

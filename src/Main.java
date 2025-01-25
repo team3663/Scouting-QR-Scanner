@@ -3,7 +3,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class Main extends JFrame {
     private JPanel MainPanel;
@@ -12,6 +11,7 @@ public class Main extends JFrame {
     private JLabel lbl_FilePath;
     private JTextArea txt_Data;
     private JTextField txt_FilePath;
+    private JCheckBox check_AutoMode;
 
     private final String default_status = "Status: ";
     private final String end_of_file = "EOF";
