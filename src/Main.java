@@ -1,8 +1,10 @@
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.*;
-import java.util.Timer;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 
 public class Main extends JFrame {
     private JPanel MainPanel;
@@ -16,17 +18,14 @@ public class Main extends JFrame {
     private final String default_status = "Status: ";
     private final String end_of_file = "EOF";
 
-    public Main () {
+    public Main() {
         // Set FORM values
         setContentPane(MainPanel);
         setTitle("CPR 3663 - Scouting QR Scanner");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(600,900);
+        setSize(600, 900);
         setLocationRelativeTo(null);
         setVisible(true);
-
-        // Timer to check periodically if text stopped coming in
-        Timer timer;
 
         // Set up a button to FORCE an auto-save
         btn_Save.addActionListener(e -> saveDataToFile(txt_Data.getText()));
@@ -35,6 +34,11 @@ public class Main extends JFrame {
         txt_Data.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
+                if (!box_AutoMode.isSelected()) {
+                    super.keyReleased(e);
+                    return;
+                }
+
                 lbl_Status.setText(default_status);
                 int index = txt_Data.getText().indexOf("\n" + end_of_file);
 
@@ -50,8 +54,10 @@ public class Main extends JFrame {
                             txt_Data.setText("");
                         else
                             txt_Data.setText(txt_Data.getText().substring(index + end_of_file.length() + 2));
-                    } else
-                        break;
+                    } else {
+                        box_AutoMode.setSelected(false);
+                        return;
+                    }
                     index = txt_Data.getText().indexOf("\n" + end_of_file);
                 }
             }
@@ -64,7 +70,7 @@ public class Main extends JFrame {
 
     public boolean saveDataToFile(String in_string) {
         String filename = in_string.split("\\n", 2)[0].trim();
-        String data = in_string.split("\\n",2)[1];
+        String data = in_string.split("\\n", 2)[1];
         String filepath = txt_FilePath.getText() + "\\" + filename;
 
         File file = new File(filepath);
