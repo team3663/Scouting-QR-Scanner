@@ -69,6 +69,8 @@ public class Main extends JFrame {
     }
 
     public boolean saveDataToFile(String in_string) {
+        in_string = in_string.trim();
+
         String filename = in_string.split("\\n", 2)[0].trim();
         String data = in_string.split("\\n", 2)[1];
         String filepath = txt_FilePath.getText() + "\\" + filename;
