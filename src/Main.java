@@ -14,8 +14,9 @@ public class Main extends JFrame {
     private JTextArea txt_Data;
     private JTextField txt_FilePath;
     private JCheckBox box_AutoMode;
+    private int numFilesSaved = 0;
 
-    private final String default_status = "Status: ";
+    private final String FILE_LINE_SEPARATOR = "\r\n";
     private final String end_of_file = "EOF";
 
     public Main() {
@@ -28,7 +29,7 @@ public class Main extends JFrame {
         setVisible(true);
 
         // Set up a button to FORCE an auto-save
-        btn_Save.addActionListener(e -> saveDataToFile(txt_Data.getText()));
+        btn_Save.addActionListener(e -> saveDataToFile());
 
         // Listen for text entered into the TextArea and record the time the key was last pressed
         txt_Data.addKeyListener(new KeyAdapter() {
@@ -39,26 +40,16 @@ public class Main extends JFrame {
                     return;
                 }
 
-                lbl_Status.setText(default_status);
-                int index = txt_Data.getText().indexOf("\n" + end_of_file);
+                int index = txt_Data.getText().indexOf(FILE_LINE_SEPARATOR + end_of_file);
+                if (index < 0) index = txt_Data.getText().indexOf("\n" + end_of_file);
 
                 if (index < 0) {
                     super.keyReleased(e);
                     return;
                 }
 
-                while (index >= 0) {
-                    String str_data = txt_Data.getText().substring(0, index);
-                    if (saveDataToFile(str_data)) {
-                        if ((index + end_of_file.length() + 2) > txt_Data.getText().length())
-                            txt_Data.setText("");
-                        else
-                            txt_Data.setText(txt_Data.getText().substring(index + end_of_file.length() + 2));
-                    } else {
-                        box_AutoMode.setSelected(false);
-                        return;
-                    }
-                    index = txt_Data.getText().indexOf("\n" + end_of_file);
+                if (!saveDataToFile()) {
+                    box_AutoMode.setSelected(false);
                 }
             }
         });
@@ -68,18 +59,38 @@ public class Main extends JFrame {
         new Main();
     }
 
-    public boolean saveDataToFile(String in_string) {
-        in_string = in_string.trim();
+    public boolean saveDataToFile() {
+        String in_string;
+        String filename;
+        String data;
 
-        String filename = in_string.split("\\n", 2)[0].trim();
-        String data = in_string.split("\\n", 2)[1];
-        String filepath = txt_FilePath.getText() + "\\" + filename;
+        txt_Data.setText(txt_Data.getText().trim());
+        if (!txt_Data.getText().contains("\r")) txt_Data.setText(txt_Data.getText().replace("\n", FILE_LINE_SEPARATOR));
+        int index = txt_Data.getText().indexOf(FILE_LINE_SEPARATOR + end_of_file);
+
+        // Process data in the textbox - keep looping if until there's no EOF
+        while (index > 0) {
+            filename = txt_Data.getText().substring(0, index).split(FILE_LINE_SEPARATOR, 2)[0].trim();
+            data =txt_Data.getText().substring(0, index).split(FILE_LINE_SEPARATOR, 2)[1];
+            txt_Data.setText(txt_Data.getText().substring(index + FILE_LINE_SEPARATOR.length() + end_of_file.length()).trim());
+
+            if (!saveFile(filename, data)) return false;
+
+            index = txt_Data.getText().indexOf(FILE_LINE_SEPARATOR + end_of_file);
+        }
+
+        return true;
+    }
+
+    public boolean saveFile(String in_filename, String in_data) {
+        String filepath = txt_FilePath.getText() + "\\" + in_filename;
 
         File file = new File(filepath);
 
         // Error Checking (minimal)
         // If the file already exists, display a message and stop.
         if (file.exists()) {
+            lbl_Status.setText("File exists (" + filepath + ")");
             JOptionPane.showMessageDialog(Main.this, "File already exists");
             return false;
         }
@@ -87,12 +98,13 @@ public class Main extends JFrame {
         // Output the data to the file
         try {
             PrintStream ps = new PrintStream(new FileOutputStream(file));
-            ps.print(data);
+            ps.print(in_data);
             ps.close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
-            lbl_Status.setText(default_status + " File " + filepath + " saved!");
+            numFilesSaved++;
+            lbl_Status.setText("Status: " + numFilesSaved + " files saved (Last: " + filepath + ")");
         }
 
         return true;
