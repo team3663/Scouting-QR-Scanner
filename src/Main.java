@@ -27,6 +27,8 @@ public class Main extends JFrame {
         setSize(600, 900);
         setLocationRelativeTo(null);
         setVisible(true);
+        txt_FilePath.setText("C:\\Program Files\\CPR\\CPR Scout\\Data To Import");
+        box_AutoMode.setSelected(true);
 
         // Set up a button to FORCE an auto-save
         btn_Save.addActionListener(e -> saveDataToFile());
@@ -60,7 +62,6 @@ public class Main extends JFrame {
     }
 
     public boolean saveDataToFile() {
-        String in_string;
         String filename;
         String data;
 
